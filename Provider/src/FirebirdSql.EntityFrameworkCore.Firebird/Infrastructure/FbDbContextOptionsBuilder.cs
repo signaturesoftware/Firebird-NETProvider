@@ -32,5 +32,8 @@ namespace FirebirdSql.EntityFrameworkCore.Firebird.Infrastructure
 
 		public virtual FbDbContextOptionsBuilder WithExplicitStringLiteralTypes(bool explicitStringLiteralTypes = true)
 			=> WithOption(e => e.WithExplicitStringLiteralTypes(explicitStringLiteralTypes));
+
+		public virtual FbDbContextOptionsBuilder WithImpersonateUser(string impersonateUser = null)
+			=> WithOption(e => e.WithImpersonateUser(impersonateUser));
 	}
 }

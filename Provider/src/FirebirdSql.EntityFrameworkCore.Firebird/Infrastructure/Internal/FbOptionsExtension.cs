@@ -28,6 +28,7 @@ namespace FirebirdSql.EntityFrameworkCore.Firebird.Infrastructure.Internal
 		DbContextOptionsExtensionInfo _info;
 		bool? _explicitParameterTypes;
 		bool? _explicitStringLiteralTypes;
+		string _impersonateUser;
 
 		public FbOptionsExtension()
 		{ }
@@ -48,6 +49,7 @@ namespace FirebirdSql.EntityFrameworkCore.Firebird.Infrastructure.Internal
 		public override DbContextOptionsExtensionInfo Info => _info ??= new ExtensionInfo(this);
 		public virtual bool? ExplicitParameterTypes => _explicitParameterTypes;
 		public virtual bool? ExplicitStringLiteralTypes => _explicitStringLiteralTypes;
+		public virtual string ImpersonateUser => _impersonateUser;
 
 		public virtual FbOptionsExtension WithExplicitParameterTypes(bool explicitParameterTypes)
 		{
@@ -63,6 +65,13 @@ namespace FirebirdSql.EntityFrameworkCore.Firebird.Infrastructure.Internal
 			return clone;
 		}
 
+		public virtual FbOptionsExtension WithImpersonateUser(string impersonateUser)
+		{
+			var clone = (FbOptionsExtension)Clone();
+			clone._impersonateUser = impersonateUser;
+			return clone;
+		}
+
 		sealed class ExtensionInfo : RelationalExtensionInfo
 		{
 			long? _serviceProviderHash;
@@ -75,7 +84,7 @@ namespace FirebirdSql.EntityFrameworkCore.Firebird.Infrastructure.Internal
 
 			public override long GetServiceProviderHashCode()
 			{
-				return _serviceProviderHash ??= HashCode.Combine(base.GetServiceProviderHashCode(), Extension._explicitParameterTypes, Extension._explicitStringLiteralTypes);
+				return _serviceProviderHash ??= HashCode.Combine(base.GetServiceProviderHashCode(), Extension._explicitParameterTypes, Extension._explicitStringLiteralTypes, Extension._impersonateUser);
 			}
 
 			public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)

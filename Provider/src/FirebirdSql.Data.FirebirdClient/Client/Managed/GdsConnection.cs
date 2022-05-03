@@ -23,9 +23,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FirebirdSql.Data.Client.Managed.Version10;
 using FirebirdSql.Data.Client.Managed.Version11;
 using FirebirdSql.Data.Client.Managed.Version13;
 using FirebirdSql.Data.Common;
+using FirebirdSql.Data.FirebirdClient;
 
 namespace FirebirdSql.Data.Client.Managed
 {
@@ -43,6 +45,8 @@ namespace FirebirdSql.Data.Client.Managed
 		private Charset _charset;
 		private bool _compression;
 		private WireCryptOption _wireCrypt;
+		private string _impersonateUser;
+		private AuthPluginOption _authPlugin;
 
 		#endregion
 
@@ -64,10 +68,10 @@ namespace FirebirdSql.Data.Client.Managed
 		#region Constructors
 
 		public GdsConnection(string dataSource, int port, int timeout)
-			: this(null, null, dataSource, port, timeout, 8192, Charset.DefaultCharset, false, WireCryptOption.Enabled)
+			: this(null, null, dataSource, port, timeout, 8192, Charset.DefaultCharset, false, WireCryptOption.Enabled, null, AuthPluginOption.Dynamic)
 		{ }
 
-		public GdsConnection(string userID, string password, string dataSource, int portNumber, int timeout, int packetSize, Charset charset, bool compression, WireCryptOption wireCrypt)
+		public GdsConnection(string userID, string password, string dataSource, int portNumber, int timeout, int packetSize, Charset charset, bool compression, WireCryptOption wireCrypt, string impersonateUser, AuthPluginOption authPlugin)
 		{
 			_userID = userID;
 			Password = password;
@@ -78,6 +82,8 @@ namespace FirebirdSql.Data.Client.Managed
 			_charset = charset;
 			_compression = compression;
 			_wireCrypt = wireCrypt;
+			_impersonateUser = impersonateUser;
+			_authPlugin = authPlugin;
 		}
 
 		#endregion
@@ -194,6 +200,9 @@ namespace FirebirdSql.Data.Client.Managed
 										break;
 									case SspiHelper.PluginName:
 										AuthData = sspi.GetClientSecurity(serverData);
+										break;
+									case ImpersonateAuthClient.PluginName:
+										AuthData = Encoding.ASCII.GetBytes(_impersonateUser);
 										break;
 									default:
 										throw new ArgumentOutOfRangeException(nameof(acceptPluginName), $"{nameof(acceptPluginName)}={acceptPluginName}");
@@ -313,30 +322,39 @@ namespace FirebirdSql.Data.Client.Managed
 
 			using (var result = new MemoryStream())
 			{
-				var userString = Environment.GetEnvironmentVariable("USERNAME") ?? Environment.GetEnvironmentVariable("USER") ?? string.Empty;
-				var user = Encoding.UTF8.GetBytes(userString);
-				result.WriteByte(IscCodes.CNCT_user);
-				result.WriteByte((byte)user.Length);
-				result.Write(user, 0, user.Length);
+				if (_authPlugin != AuthPluginOption.Impersonate_Auth)
+				{
+					var userString = Environment.GetEnvironmentVariable("USERNAME") ?? Environment.GetEnvironmentVariable("USER") ?? string.Empty;
+					var user = Encoding.UTF8.GetBytes(userString);
+					result.WriteByte(IscCodes.CNCT_user);
+					result.WriteByte((byte)user.Length);
+					result.Write(user, 0, user.Length);
 
-				var host = Encoding.UTF8.GetBytes(Dns.GetHostName());
-				result.WriteByte(IscCodes.CNCT_host);
-				result.WriteByte((byte)host.Length);
-				result.Write(host, 0, host.Length);
+					var host = Encoding.UTF8.GetBytes(Dns.GetHostName());
+					result.WriteByte(IscCodes.CNCT_host);
+					result.WriteByte((byte)host.Length);
+					result.Write(host, 0, host.Length);
 
-				result.WriteByte(IscCodes.CNCT_user_verification);
-				result.WriteByte(0);
+					result.WriteByte(IscCodes.CNCT_user_verification);
+					result.WriteByte(0);
+				}
 
 				if (!string.IsNullOrEmpty(_userID))
 				{
 					srp = new SrpClient();
+					var legacyAuthClient = new ImpersonateAuthClient();
 
 					var login = Encoding.UTF8.GetBytes(_userID);
 					result.WriteByte(IscCodes.CNCT_login);
 					result.WriteByte((byte)login.Length);
 					result.Write(login, 0, login.Length);
 
-					var pluginName = Encoding.ASCII.GetBytes(SrpClient.PluginName);
+					var pluginName = _authPlugin switch
+					{
+						AuthPluginOption.Impersonate_Auth => Encoding.ASCII.GetBytes(ImpersonateAuthClient.PluginName),
+						_ => Encoding.ASCII.GetBytes(SrpClient.PluginName),
+					};
+
 					result.WriteByte(IscCodes.CNCT_plugin_name);
 					result.WriteByte((byte)pluginName.Length);
 					result.Write(pluginName, 0, pluginName.Length);
@@ -344,12 +362,20 @@ namespace FirebirdSql.Data.Client.Managed
 					result.WriteByte((byte)pluginName.Length);
 					result.Write(pluginName, 0, pluginName.Length);
 
-					var specificData = Encoding.ASCII.GetBytes(srp.PublicKeyHex);
+					var specificData = _authPlugin switch
+					{
+						AuthPluginOption.Srp => Encoding.ASCII.GetBytes(srp.PublicKeyHex),
+						AuthPluginOption.Impersonate_Auth => Encoding.ASCII.GetBytes(legacyAuthClient.GetEncryptedPassowrd(Password)),
+						_ => Encoding.ASCII.GetBytes(""),
+					};
 					WriteMultiPartHelper(result, IscCodes.CNCT_specific_data, specificData);
 
-					result.WriteByte(IscCodes.CNCT_client_crypt);
-					result.WriteByte(4);
-					result.Write(TypeEncoder.EncodeInt32(WireCryptOptionValue(_wireCrypt)), 0, 4);
+					//if (_authPlugin == AuthPluginOption.Srp)
+					//{
+						result.WriteByte(IscCodes.CNCT_client_crypt);
+						result.WriteByte(4);
+						result.Write(TypeEncoder.EncodeInt32(WireCryptOptionValue(_wireCrypt)), 0, 4);
+					//}
 				}
 				else
 				{

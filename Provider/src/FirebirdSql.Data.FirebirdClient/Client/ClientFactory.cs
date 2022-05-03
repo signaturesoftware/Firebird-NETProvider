@@ -18,6 +18,7 @@
 using System;
 using System.Threading.Tasks;
 using FirebirdSql.Data.Client.Managed;
+using FirebirdSql.Data.Client.Managed.Version10;
 using FirebirdSql.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
 using WireCryptOption = FirebirdSql.Data.Client.Managed.Version13.WireCryptOption;
@@ -48,7 +49,7 @@ namespace FirebirdSql.Data.Client
 
 		private static async Task<DatabaseBase> CreateManagedDatabase(ConnectionString options, AsyncWrappingCommonArgs async)
 		{
-			var connection = new GdsConnection(options.UserID, options.Password, options.DataSource, options.Port, options.ConnectionTimeout, options.PacketSize, Charset.GetCharset(options.Charset), options.Compression, FbWireCryptToWireCryptOption(options.WireCrypt));
+			var connection = new GdsConnection(options.UserID, options.Password, options.DataSource, options.Port, options.ConnectionTimeout, options.PacketSize, Charset.GetCharset(options.Charset), options.Compression, FbWireCryptToWireCryptOption(options.WireCrypt), options.ImpersonateUser, FbAuthPluginToAuthPluginOption(options.AuthPlugin));
 			await connection.Connect(async).ConfigureAwait(false);
 			await connection.Identify(options.Database, async).ConfigureAwait(false);
 			return connection.ProtocolVersion switch
@@ -63,7 +64,7 @@ namespace FirebirdSql.Data.Client
 
 		private static async Task<ServiceManagerBase> CreateManagedServiceManager(ConnectionString options, AsyncWrappingCommonArgs async)
 		{
-			var connection = new GdsConnection(options.UserID, options.Password, options.DataSource, options.Port, options.ConnectionTimeout, options.PacketSize, Charset.GetCharset(options.Charset), options.Compression, FbWireCryptToWireCryptOption(options.WireCrypt));
+			var connection = new GdsConnection(options.UserID, options.Password, options.DataSource, options.Port, options.ConnectionTimeout, options.PacketSize, Charset.GetCharset(options.Charset), options.Compression, FbWireCryptToWireCryptOption(options.WireCrypt), options.ImpersonateUser, FbAuthPluginToAuthPluginOption(options.AuthPlugin));
 			await connection.Connect(async).ConfigureAwait(false);
 			await connection.Identify(!string.IsNullOrEmpty(options.Database) ? options.Database : string.Empty, async).ConfigureAwait(false);
 			return connection.ProtocolVersion switch
@@ -94,6 +95,17 @@ namespace FirebirdSql.Data.Client
 				FbWireCrypt.Enabled => WireCryptOption.Enabled,
 				FbWireCrypt.Required => WireCryptOption.Required,
 				_ => throw new ArgumentOutOfRangeException(nameof(wireCrypt), $"{nameof(wireCrypt)}={wireCrypt}"),
+			};
+		}
+
+		private static AuthPluginOption FbAuthPluginToAuthPluginOption(FbAuthPlugin authPlugin)
+		{
+			return authPlugin switch
+			{
+				FbAuthPlugin.Srp => AuthPluginOption.Srp,
+				FbAuthPlugin.Win_Sspi => AuthPluginOption.Win_Sspi,
+				FbAuthPlugin.Impersonate_Auth => AuthPluginOption.Impersonate_Auth,
+				_ => AuthPluginOption.Dynamic,
 			};
 		}
 	}

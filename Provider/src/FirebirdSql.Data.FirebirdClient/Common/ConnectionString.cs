@@ -55,6 +55,8 @@ namespace FirebirdSql.Data.Common
 		internal const bool DefaultValueCompression = false;
 		internal const byte[] DefaultValueCryptKey = null;
 		internal const FbWireCrypt DefaultValueWireCrypt = FbWireCrypt.Enabled;
+		internal const string DefaultValueImpersonateUser = null;
+		internal const FbAuthPlugin DefaultValueAuthPlugin = FbAuthPlugin.Srp;
 
 		internal const string DefaultKeyUserId = "user id";
 		internal const string DefaultKeyPortNumber = "port number";
@@ -82,6 +84,8 @@ namespace FirebirdSql.Data.Common
 		internal const string DefaultKeyCompression = "compression";
 		internal const string DefaultKeyCryptKey = "crypt key";
 		internal const string DefaultKeyWireCrypt = "wire crypt";
+		internal const string DefaultKeyImpersonateUser = "impersonate user";
+		internal const string DefaultKeyAuthPlugin = "authentication plugin";
 		#endregion
 
 		#region Static Fields
@@ -149,6 +153,12 @@ namespace FirebirdSql.Data.Common
 			{ "cryptkey", DefaultKeyCryptKey },
 			{ DefaultKeyWireCrypt, DefaultKeyWireCrypt },
 			{ "wirecrypt", DefaultKeyWireCrypt },
+			{ DefaultKeyImpersonateUser, DefaultKeyImpersonateUser },
+			{ "impersonateuser", DefaultKeyImpersonateUser },
+			{ DefaultKeyAuthPlugin, DefaultKeyAuthPlugin },
+			{ "authenticationplugin", DefaultKeyAuthPlugin },
+			{ "auth plugin", DefaultKeyAuthPlugin },
+			{ "authplugin", DefaultKeyAuthPlugin },
 		};
 
 		internal static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>(StringComparer.Ordinal)
@@ -179,6 +189,8 @@ namespace FirebirdSql.Data.Common
 			{ DefaultKeyCompression, DefaultValueCompression },
 			{ DefaultKeyCryptKey, DefaultValueCryptKey },
 			{ DefaultKeyWireCrypt, DefaultValueWireCrypt },
+			{ DefaultKeyImpersonateUser, DefaultValueImpersonateUser },
+			{ DefaultKeyAuthPlugin, DefaultValueAuthPlugin },
 		};
 
 		#endregion
@@ -217,6 +229,8 @@ namespace FirebirdSql.Data.Common
 		public bool Compression => GetBoolean(DefaultKeyCompression, _options.TryGetValue);
 		public byte[] CryptKey => GetBytes(DefaultKeyCryptKey, _options.TryGetValue);
 		public FbWireCrypt WireCrypt => GetWireCrypt(DefaultKeyWireCrypt, _options.TryGetValue);
+		public string ImpersonateUser => GetString(DefaultKeyImpersonateUser, _options.TryGetValue);
+		public FbAuthPlugin AuthPlugin => GetAuthPlugin(DefaultKeyAuthPlugin, _options.TryGetValue);
 
 		#endregion
 
@@ -330,6 +344,9 @@ namespace FirebirdSql.Data.Common
 										break;
 									case DefaultKeyWireCrypt:
 										_options[key] = ParseEnum<FbWireCrypt>(values[1], DefaultKeyWireCrypt);
+										break;
+									case DefaultKeyAuthPlugin:
+										_options[key] = ParseEnum<FbAuthPlugin>(values[1], DefaultKeyAuthPlugin);
 										break;
 									default:
 										_options[key] = values[1];
@@ -539,6 +556,13 @@ namespace FirebirdSql.Data.Common
 		{
 			return tryGetValue(key, out var value)
 				? (FbWireCrypt)value
+				: defaultValue;
+		}
+
+		internal static FbAuthPlugin GetAuthPlugin(string key, TryGetValueDelegate tryGetValue, FbAuthPlugin defaultValue = default)
+		{
+			return tryGetValue(key, out var value)
+				? (FbAuthPlugin)value
 				: defaultValue;
 		}
 

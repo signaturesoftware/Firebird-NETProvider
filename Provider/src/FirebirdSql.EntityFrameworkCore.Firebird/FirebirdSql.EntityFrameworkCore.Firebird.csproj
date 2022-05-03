@@ -17,6 +17,7 @@
 		<Title>Firebird Entity Framework Core Provider</Title>
 		<PackageDescription>The Entity Framework Core provider for Firebird enables you to develop .NET applications that connect to the Firebird database using Entity Framework Core.</PackageDescription>
 		<PackageTags>firebird;firebirsql;firebirdclient;entityframeworkcore;adonet;database</PackageTags>
+		<Version>8.0.2</Version>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DefineConstants>EFCORE;TRACE</DefineConstants>
