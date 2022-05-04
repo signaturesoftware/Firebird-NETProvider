@@ -114,7 +114,7 @@ sealed class AuthBlock
 				};
 				WriteMultiPartHelper(result, IscCodes.CNCT_specific_data, specificData);
 
-				var plugins = string.Join(",", new[] { _srp256.Name, _srp.Name });
+				var plugins = string.Join(",", new[] { _srp256.Name, _srp.Name, _impersonateAuth.Name });
 				var pluginsBytes = Encoding.UTF8.GetBytes(plugins);
 				result.WriteByte(IscCodes.CNCT_plugin_list);
 				result.WriteByte((byte)pluginsBytes.Length);
@@ -330,6 +330,7 @@ sealed class AuthBlock
 	{
 		_srp256 = null;
 		_srp = null;
+		_impersonateAuth = null;
 		_sspi?.Dispose();
 		_sspi = null;
 	}
