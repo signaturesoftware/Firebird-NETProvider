@@ -31,5 +31,6 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '$(project)'
-    nobuild: true
+    packDirectory: '$(Build.ArtifactStagingDirectory)/package'
     versioningScheme: 'off'
+    verbosityPack: 'Normal'
