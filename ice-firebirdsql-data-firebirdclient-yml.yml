@@ -1,0 +1,35 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- v9.0.1.0-signature-branch
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  project: '**/FirebirdSql.Data.FirebirdClient.csproj'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '$(project)'
+    feedsToUse: 'select'
+    vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(project)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(project)'
+    nobuild: true
+    versioningScheme: 'off'
