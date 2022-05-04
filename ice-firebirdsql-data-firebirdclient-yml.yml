@@ -22,11 +22,9 @@ steps:
     feedsToUse: 'select'
     vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: '$(project)'
-
+- script: dotnet build --configuration $(buildConfiguration) '$project'
+  displayName: 'dotnet build $(buildConfiguration)'
+  
 - task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
@@ -34,3 +32,9 @@ steps:
     packDirectory: '$(Build.ArtifactStagingDirectory)/package'
     versioningScheme: 'off'
     verbosityPack: 'Normal'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/package'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
