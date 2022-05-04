@@ -4,8 +4,5 @@
 .vs
 bin
 obj
-packages
-DDEX/installer/out/
-DDEX/installer/in/
-Provider/out/
+out/
 .idea
