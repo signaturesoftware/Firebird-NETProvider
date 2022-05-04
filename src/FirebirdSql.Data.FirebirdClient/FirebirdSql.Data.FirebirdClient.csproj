@@ -56,12 +56,7 @@
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="ICE.Firebird.Encryption.Wrapper" Version="1.0.3" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-	  <PackageReference Include="ICE.Firebird.Encryption.Wrapper">
-	    <Version>1.0.2</Version>
-	  </PackageReference>
+	  <PackageReference Include="ICE.Firebird.Encryption.Wrapper" Version="1.0.4" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="FirebirdClient\FbBatchCommand.cs" />
