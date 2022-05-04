@@ -14,7 +14,7 @@
 		<Copyright>(c) 2002-2021</Copyright>
 	</PropertyGroup>
 	<PropertyGroup>
-		<PackageId>FirebirdSql.Data.FirebirdClient</PackageId>
+		<PackageId>ICE.FirebirdSql.Data.FirebirdClient</PackageId>
 		<Title>Firebird ADO.NET Data provider</Title>
 		<PackageDescription>Firebird ADO.NET data provider</PackageDescription>
 		<PackageTags>firebird;firebirsql;firebirdclient;adonet;database</PackageTags>
