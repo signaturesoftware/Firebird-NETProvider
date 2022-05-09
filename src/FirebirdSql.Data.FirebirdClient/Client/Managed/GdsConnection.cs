@@ -152,7 +152,7 @@ internal sealed class GdsConnection
 			var protocols = ProtocolsSupported.Get(Compression);
 			Xdr.Write(protocols.Count());
 
-			AuthBlock = new AuthBlock(this, User, Password, WireCrypt, ImpersonateUser, AuthPlugin);
+			AuthBlock = new AuthBlock(this, User, Password, database, WireCrypt, ImpersonateUser, AuthPlugin);
 
 			Xdr.WriteBuffer(AuthBlock.UserIdentificationData());
 
@@ -266,7 +266,7 @@ internal sealed class GdsConnection
 			var protocols = ProtocolsSupported.Get(Compression);
 			await Xdr.WriteAsync(protocols.Count(), cancellationToken).ConfigureAwait(false);
 
-			AuthBlock = new AuthBlock(this, User, Password, WireCrypt, ImpersonateUser, AuthPlugin);
+			AuthBlock = new AuthBlock(this, User, Password, database, WireCrypt, ImpersonateUser, AuthPlugin);
 
 			await Xdr.WriteBufferAsync(AuthBlock.UserIdentificationData(), cancellationToken).ConfigureAwait(false);
 

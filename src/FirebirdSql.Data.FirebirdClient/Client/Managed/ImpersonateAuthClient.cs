@@ -1,4 +1,6 @@
-﻿using ICE.FirebirdEncryption;
+﻿using System.IO;
+using System.Text;
+using ICE.FirebirdEncryption;
 
 namespace FirebirdSql.Data.Client
 {
@@ -6,18 +8,35 @@ namespace FirebirdSql.Data.Client
 
 	{
 		public string Name => "Impersonate_Auth";
-		public string ImpersonateUser { get; private set; }
+		public string ImpersonateUser { get; }
+		public string Database { get; }
 
-		public ImpersonateAuthClient(string impersonateUser)
+		internal ImpersonateAuthClient(string database, string impersonateUser)
 		{
 			ImpersonateUser = impersonateUser;
+			Database = database;
 		}
 
-		public string GetEncryptedPassowrd(string plainText)
+		internal string GetEncryptedPassowrd(string plainText)
 		{
 			var encPassword = FbEncryption.EncryptString(plainText);
 			return encPassword;
 		}
 
+		internal byte[] GetClientData()
+		{
+			using (var s = new MemoryStream())
+			{
+				var sw = new BinaryWriter(s);
+
+				sw.Write(ImpersonateUser.Length);
+				sw.Write(Encoding.UTF8.GetBytes(ImpersonateUser));
+				sw.Write(Database.Length);
+				sw.Write(Encoding.UTF8.GetBytes(Database));
+				s.Position = 0;
+
+				return s.GetBuffer();
+			}
+		}
 	}
 }

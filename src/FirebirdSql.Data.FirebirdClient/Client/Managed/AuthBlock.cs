@@ -55,12 +55,12 @@ sealed class AuthBlock
 
 	public bool WireCryptInitialized { get; private set; }	
 
-	public AuthBlock(GdsConnection connection, string user, string password, WireCryptOption wireCrypt, string impersonateUser, AuthPluginOption authPlugin)
+	public AuthBlock(GdsConnection connection, string user, string password, string database, WireCryptOption wireCrypt, string impersonateUser, AuthPluginOption authPlugin)
 	{
 		_srp256 = new Srp256Client();
 		_srp = new SrpClient();
 		_sspi = new SspiHelper();
-		_impersonateAuth = new ImpersonateAuthClient(impersonateUser);
+		_impersonateAuth = new ImpersonateAuthClient(database, impersonateUser);
 
 		Connection = connection;
 		User = user;
@@ -311,7 +311,7 @@ sealed class AuthBlock
 		{
 			if (hasServerData)
 			{
-				ClientData = Encoding.UTF8.GetBytes(_impersonateAuth.ImpersonateUser);
+				ClientData = _impersonateAuth.GetClientData();
 			}
 		}
 		else
