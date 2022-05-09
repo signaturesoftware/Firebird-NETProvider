@@ -33,7 +33,10 @@ steps:
     command: 'pack'
     packagesToPack: '$(project)'
     packDirectory: '$(Build.ArtifactStagingDirectory)/package'
-    versioningScheme: 'off'
+    versioningScheme: 'byPrereleaseNumber'
+    majorVersion: '9'
+    minorVersion: '0'
+    patchVersion: '1'
     verbosityPack: 'Normal'
 
 - task: PublishBuildArtifacts@1
