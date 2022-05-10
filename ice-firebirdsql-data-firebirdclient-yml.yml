@@ -7,7 +7,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  project: '**/FirebirdSql.Data.FirebirdClient.csproj **/FirebirdSql.EntityFrameworkCore.Firebird.csproj'
+  project: '| **/FirebirdSql.Data.FirebirdClient.csproj **/FirebirdSql.EntityFrameworkCore.Firebird.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   packageVersion: '9.0.2-beta'
