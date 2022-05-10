@@ -16,7 +16,8 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: '$(project)'
+    projects: |
+      $(project)
     feedsToUse: 'select'
     vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
 
