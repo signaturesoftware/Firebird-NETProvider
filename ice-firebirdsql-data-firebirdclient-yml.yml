@@ -7,7 +7,9 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  project: '**/*.csproj !**/*(Tests)*.csproj'
+  project: | 
+    **/*.csproj 
+    !**/*(Tests)*.csproj
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   packageVersion: '9.0.2-beta'
@@ -17,20 +19,25 @@ steps:
   inputs:
     command: 'restore'
     projects: |
-      $(project)
+      **/*.csproj
+      !**/*(Tests)*.csproj
     feedsToUse: 'select'
     vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '$(project)'
+    projects: |
+      **/*.csproj
+      !**/*(Tests)*.csproj
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
-    packagesToPack: '$(project)'
+    packagesToPack: |
+      **/*.csproj
+      !**/*(Tests)*.csproj
     packDirectory: '$(Build.ArtifactStagingDirectory)/package'
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'packageVersion'
