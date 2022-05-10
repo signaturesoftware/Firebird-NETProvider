@@ -7,9 +7,6 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  project: | 
-    **/*.csproj 
-    !**/*(Tests)*.csproj
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   packageVersion: '9.0.2-beta'
