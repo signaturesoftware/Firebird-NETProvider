@@ -7,34 +7,58 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  clientProject: '**/FirebirdSql.Data.FirebirdClient/*.csproj'
+  efcoreProject: '**/FirebirdSql.EntityFrameworkCore.Firebird/*.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   packageVersion: '9.0.2-beta'
 
 steps:
 - task: DotNetCoreCLI@2
+  displayName: 'Restore FirebirdClient project'
   inputs:
     command: 'restore'
-    projects: |
-      **/*.csproj
-      !**/*(Tests)*.csproj
+    projects: '$(clientProject)'
     feedsToUse: 'select'
     vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Restore Firebird EFCore project'
+  inputs:
+    command: 'restore'
+    projects: '$(efcoreProject)'
+    feedsToUse: 'select'
+    vstsFeed: 'c9705240-60bd-4834-bdca-f494313f9def/1fda93c2-23bc-4c1d-bb07-8cf703686973'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build client project'
   inputs:
     command: 'build'
-    projects: |
-      **/*.csproj
-      !**/*(Tests)*.csproj
+    projects: '$(clientProject)'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Build EFCore project'
+  inputs:
+    command: 'build'
+    projects: '$(efcoreProject)'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack client project'
   inputs:
     command: 'pack'
-    packagesToPack: |
-      **/*.csproj
-      !**/*(Tests)*.csproj
+    packagesToPack: '$(clientProject)'
+    packDirectory: '$(Build.ArtifactStagingDirectory)/package'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'packageVersion'
+    verbosityPack: 'Normal'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack efcore project'
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(efcoreProject)'
     packDirectory: '$(Build.ArtifactStagingDirectory)/package'
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'packageVersion'
