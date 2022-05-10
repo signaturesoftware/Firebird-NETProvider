@@ -10,7 +10,7 @@ variables:
   project: '**/FirebirdSql.Data.FirebirdClient.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  packageVersion: '9.0.2-20220510-001'
+  packageVersion: '9.0.2-beta'
 
 steps:
 - task: DotNetCoreCLI@2
