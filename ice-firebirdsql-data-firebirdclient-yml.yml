@@ -11,7 +11,7 @@ variables:
   efcoreProject: '**/FirebirdSql.EntityFrameworkCore.Firebird/*.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  packageVersion: '9.0.2-beta'
+  packageVersion: '9.0.2-beta-20220511-0917'
 
 steps:
 - task: DotNetCoreCLI@2
