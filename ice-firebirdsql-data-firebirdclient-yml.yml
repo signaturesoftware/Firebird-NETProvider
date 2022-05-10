@@ -3,9 +3,6 @@
 # Add steps that publish symbols, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
-trigger:
-- v9.0.1.0-signature-branch
-
 pool:
   vmImage: 'windows-latest'
 
@@ -13,7 +10,7 @@ variables:
   project: '**/FirebirdSql.Data.FirebirdClient.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  packageVersion: '9.0.3'
+  packageVersion: '9.0.2-20220510-001'
 
 steps:
 - task: DotNetCoreCLI@2
