@@ -13,6 +13,7 @@ variables:
   project: '**/FirebirdSql.Data.FirebirdClient.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  packageVersion: '9.0.3'
 
 steps:
 - task: DotNetCoreCLI@2
@@ -33,10 +34,8 @@ steps:
     command: 'pack'
     packagesToPack: '$(project)'
     packDirectory: '$(Build.ArtifactStagingDirectory)/package'
-    versioningScheme: 'byPrereleaseNumber'
-    majorVersion: '9'
-    minorVersion: '0'
-    patchVersion: '1'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'packageVersion'
     verbosityPack: 'Normal'
 
 - task: PublishBuildArtifacts@1
